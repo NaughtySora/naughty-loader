@@ -88,10 +88,10 @@ const _module = (path, { context, justLoad = [] } = {}) => {
   return freeze(result);
 };
 
-const dir = (path, context) => {
+const dir = (path, options = {}) => {
   const app = {};
   for (const member of readdirSync(path, 'utf-8')) {
-    app[member] = _module(resolve(path, member), context);
+    app[member] = _module(resolve(path, member), options);
   }
   return freeze(app);
 };

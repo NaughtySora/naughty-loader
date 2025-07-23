@@ -1,8 +1,8 @@
 'use strict';
 
 const assert = require('node:assert');
-const { describe, it } = require('node:test');
-
+const { describe, it, after } = require('node:test');
+const { EventEmitter } = require("node:events");
 const loader = require('../main');
 const path = require('node:path');
 const { mkdirSync, writeFileSync, accessSync, rmSync } = require('node:fs');
@@ -145,25 +145,134 @@ describe('Loader', () => {
       mjs: path.resolve(__dirname, "modules/mjs"),
       js: path.resolve(__dirname, "modules/js"),
       json: path.resolve(__dirname, "modules/json"),
+      jsonEmpty: path.resolve(__dirname, "modules/json/empty"),
     };
+    const loaded = {
+      cjs: null,
+      mjs: null,
+      js: null,
+      json: null,
+    };
+
+    const expected = {
+      cjs: {
+        api: { a: 1, b: 2 },
+        array: [1, 2, 3],
+        bool: true,
+        class: class { },
+        empty: {},
+        function: x => x,
+        di_function: { test: 1 },
+        map: new Map(),
+        named: {
+          test: "a",
+          test2: {},
+        },
+        'obj-class': new (class A {
+          constructor(name) {
+            this.name = name;
+            this.length = 0;
+          }
+
+          method1() {
+
+          }
+
+          #hidden() {
+
+          }
+
+          _internal() {
+
+          }
+        })(),
+        primitive: 'primitive',
+        symbol: Symbol(),
+        'not-direct-obj': new (class B extends EventEmitter {
+          constructor() {
+            super();
+          }
+
+          test() {
+            throw new Error("B - test");
+          }
+        })(),
+        number: 0xFFFF,
+      },
+    };
+
+    after(() => {
+      const api = loader.dir(path.resolve(__dirname, "modules"), { context: { test: 1 } });
+      assert.deepStrictEqual(loaded.cjs, api.cjs);
+      assert.deepStrictEqual(loaded.mjs, api.mjs);
+      assert.deepStrictEqual(loaded.js, api.js);
+      assert.deepStrictEqual(loaded.json, api.json);
+    });
+
     it('.cjs', () => {
-      const cjs = loader.module(folders.cjs, { context: { test: 1 } });
+      const cjs = loaded.cjs = loader.module(folders.cjs, { context: { test: 1 } });
+      const no_context = loader.module(folders.cjs, { justLoad: ["function"] });
+      assert.deepStrictEqual(cjs.api, expected.cjs.api);
+      assert.deepStrictEqual(cjs.array, expected.cjs.array);
+      assert.deepStrictEqual(cjs.bool, expected.cjs.bool);
+      assert.deepStrictEqual(cjs.empty, expected.cjs.empty);
+      assert.deepStrictEqual(cjs.function, expected.cjs.di_function);
+      assert.deepStrictEqual(cjs.map, expected.cjs.map);
+      assert.deepStrictEqual(cjs.named, expected.cjs.named);
+      assert.deepStrictEqual(cjs.number, expected.cjs.number);
+      assert.deepStrictEqual(cjs.primitive, expected.cjs.primitive);
+
+      // can't compare direct
+      assert.ok(cjs['not-direct-obj'].toString()
+        === expected.cjs['not-direct-obj'].toString());
+      assert.deepStrictEqual(
+        Object.getPrototypeOf(cjs['not-direct-obj']),
+        Object.getPrototypeOf(expected.cjs['not-direct-obj'])
+      );
+
+      // can't compare direct
+      assert.ok(cjs['obj-class'].toString()
+        === expected.cjs['obj-class'].toString());
+      assert.deepStrictEqual(
+        Object.getPrototypeOf(cjs['obj-class']),
+        Object.getPrototypeOf(expected.cjs['obj-class'])
+      );
+
+      // can't compare symbols
+      assert.ok(cjs.symbol.toString()
+        === expected.cjs.symbol.toString());
+      assert.ok(Object.getPrototypeOf(cjs.symbol)
+        === Object.getPrototypeOf(expected.cjs.symbol));
+
+      // reference different, the function name initially is id, but mapped to function
+      // so only here we compare just function body;
+      assert.ok(no_context.function.toString() === expected.cjs.function.toString());
     });
 
     it('.mjs', () => {
-      const mjs = loader.module(folders.mjs, { context: { test: 1 } });
+      const msj = loaded.mjs = loader.module(folders.mjs, { context: { test: 1 } });
     });
 
     it('.js', () => {
-      const js = loader.module(folders.js, { context: { test: 1 } });
+      const js = loaded.js = loader.module(folders.js, { context: { test: 1 } });
     });
 
     it('json', () => {
-      const json = loader.module(folders.json);
+      const json = loaded.json = loader.module(folders.json);
+      assert.deepStrictEqual(json.array, [1, 23, true, false, { name: "a" },
+        [1, 3, 4, 5, { some: "maybe" }]]);
+      assert.deepStrictEqual(json.bool, true);
+      assert.deepStrictEqual(json.number, 1213123.851209381);
+      assert.deepStrictEqual(json.obj, {
+        name: "string",
+        data: { data: { array: [42, 43] }, smth: "a" },
+        field: true,
+        array: ["true", false, 33.33]
+      });
+      assert.deepStrictEqual(json.string, "an arbitrary string nothing wrong with it");
+      assert.throws(() => loader.module(folders.jsonEmpty))
     });
-  });
 
-  describe.skip('dir', () => {
-
+    it.skip('index', () => { });
   });
 });
