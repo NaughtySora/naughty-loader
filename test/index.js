@@ -153,7 +153,6 @@ describe('Loader', () => {
       js: null,
       json: null,
     };
-
     const expected = {
       cjs: {
         api: { a: 1, b: 2 },
@@ -247,6 +246,7 @@ describe('Loader', () => {
       // reference different, the function name initially is id, but mapped to function
       // so only here we compare just function body;
       assert.ok(no_context.function.toString() === expected.cjs.function.toString());
+      assert.ok(cjs.class.toString() === expected.cjs.class.toString());
     });
 
     it('.mjs', () => {
@@ -287,11 +287,12 @@ describe('Loader', () => {
       // reference different, the function name initially is id, but mapped to function
       // so only here we compare just function body;
       assert.ok(no_context.function.toString() === expected.cjs.function.toString());
+      assert.ok(mjs.class.toString() === expected.cjs.class.toString());
     });
 
     it('.js', () => {
       const js = loaded.js = loader.module(folders.js, { context: { test: 1 } });
-      const no_context = loader.module(folders.js, { justLoad: ['function'] });
+      const no_context = loader.module(folders.js, { justLoad: ['function', 'function-mjs'] });
 
       assert.deepStrictEqual(js.api, expected.cjs.api);
       assert.deepStrictEqual(js['api-mjs'], expected.cjs.api);
@@ -361,6 +362,9 @@ describe('Loader', () => {
       // reference different, the function name initially is id, but mapped to function
       // so only here we compare just function body;
       assert.ok(no_context.function.toString() === expected.cjs.function.toString());
+      assert.ok(no_context['function-mjs'].toString() === expected.cjs.function.toString());
+      assert.ok(js.class.toString() === expected.cjs.class.toString());
+      assert.ok(js['class-mjs'].toString() === expected.cjs.class.toString());
     });
 
     it('json', () => {
@@ -379,6 +383,23 @@ describe('Loader', () => {
       assert.throws(() => loader.module(folders.jsonEmpty))
     });
 
-    it.skip('index', () => { });
+    it('index', () => {
+      const cjs = loader.module(path.resolve(__dirname, "modules/index/cjs"), { context: { test: 1 } });
+      const mjs = loader.module(path.resolve(__dirname, "modules/index/mjs"), { context: { test: 1 } });
+      const mjsFn = loader.module(path.resolve(__dirname, "modules/index/mjs-fn"), { context: { test: 1 } });
+      const jsC = loader.module(path.resolve(__dirname, "modules/index/js-cjs"), { context: { test: 1 } });
+      const jsM = loader.module(path.resolve(__dirname, "modules/index/js-mjs"), { context: { test: 1 } });
+      const no_context_mjs = loader.module(path.resolve(__dirname, "modules/index/mjs-fn"), { justLoad: ['index'] });
+      const no_context_cjs = loader.module(path.resolve(__dirname, "modules/index/cjs"), { justLoad: ['index'] });
+      assert.deepStrictEqual(cjs, { test: 1 });
+      assert.deepStrictEqual(mjsFn, { test: 1 });
+      assert.deepStrictEqual(jsC, { aaa: 'bbb', name: '`', value: true });
+      assert.deepStrictEqual(jsM, { error: new Error(), test: 42 });
+      assert.ok(mjs.toString() === expected.cjs.class.toString());
+      assert.ok(typeof no_context_mjs === "function");
+      assert.ok(typeof no_context_cjs === "function");
+      assert.deepStrictEqual(no_context_mjs({ test: 1 }), { test: 1 });
+      assert.deepStrictEqual(no_context_cjs({ test: 1 }), { test: 1 });
+    });
   });
 });

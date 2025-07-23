@@ -87,7 +87,10 @@ const _module = (path, { context, justLoad = [] } = {}) => {
 
   const index = result.index;
   if (count === 1 && index !== undefined) {
-    if (typeof index === 'function') return freeze(index);
+    if (typeof index === 'function') {
+      if (justLoad.includes('index') || isClass(index)) return freeze(index);
+      return freeze(index(context));
+    }
     return freeze({ ...index });
   }
   return freeze(result);
@@ -106,5 +109,4 @@ module.exports = {
   dir,
   npm,
   module: _module,
-  isClass,
 };
