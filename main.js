@@ -84,7 +84,6 @@ const _module = (path, { context, justLoad = [] } = {}) => {
     }
     count++;
   }
-
   const index = result.index;
   if (count === 1 && index !== undefined) {
     if (typeof index === 'function') {
