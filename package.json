@@ -1,0 +1,39 @@
+{
+  "name": "naughty-loader",
+  "version": "0.1.0",
+  "description": "Nodejs module loader, ID containerization",
+  "keywords": [
+    "nodejs",
+    "DI",
+    "dependency injection",
+    "loader",
+    "npm loader",
+    "node loader",
+    "directory loader",
+    "module"
+  ],
+  "license": "ISC",
+  "author": "NaughtySora <naughtysora@proton.me>",
+  "main": "main.js",
+  "types": "main.d.ts",
+  "readmeFilename": "README.md",
+  "files": [
+    "main.d.ts"
+  ],
+  "scripts": {
+    "types": "tsc -p ./tsconfig.json",
+    "test": "node ./test/index.js"
+  },
+  "homepage": "https://github.com/NaughtySora/naughty-loader#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NaughtySora/naughty-loader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/NaughtySora/naughty-loader/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.14",
+    "typescript": "^5.8.2"
+  }
+}
