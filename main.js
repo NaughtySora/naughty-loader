@@ -8,14 +8,15 @@ const ALLOWED_EXTS = ['.js', '.cjs', '.mjs', '.json', '.ts',];
 
 const isClass = entity => entity.toString().startsWith('class');
 
-const npm = (path, { omit = [], rename = {} }) => {
+const npm = (path, { omit = [], rename = {} } = {}) => {
   const json = require(path);
-  if (typeof json?.dependencies !== 'object' || json === null) {
+  const dependencies = json?.dependencies;
+  if (typeof dependencies !== 'object' || dependencies === null) {
     throw new Error(`Can't find package json dependencies in ${path}`);
   }
   const npm = {};
-  for (const lib of keys(json.dependencies)) {
-    if (!omit.includes(lib)) continue;
+  for (const lib of keys(dependencies)) {
+    if (omit.includes(lib)) continue;
     const module = require(lib);
     npm[rename[lib] ?? lib] = freeze(module?.default ?? module);
   }
