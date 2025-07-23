@@ -24,6 +24,9 @@ const npm = (path, { omit = [], rename = {} } = {}) => {
 };
 
 const node = modules => {
+  if(!Array.isArray(modules)){
+    throw new Error("Modules list should be an array");
+  }
   const api = [];
   for (const module of modules) {
     const lib = require(`node:${module}`);

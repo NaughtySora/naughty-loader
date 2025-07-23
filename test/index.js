@@ -6,6 +6,7 @@ const { describe, it } = require('node:test');
 const loader = require('../main');
 const path = require('node:path');
 const { mkdirSync, writeFileSync, accessSync, rmSync } = require('node:fs');
+const { builtinModules } = require('node:module');
 
 const findPackage = query => path.resolve(__dirname, 'packages', query);
 const getPackageJSONDependencies = (path) => Object.keys(require(path).dependencies);
@@ -116,15 +117,30 @@ describe('Loader', () => {
     });
   });
 
-  // describe('node', () => {
+  describe('node', () => {
+    const modules = ["http", "http2"];
+    const http = require("http");
+    const http2 = require("http2");
 
-  // });
+    it('valid', () => {
+      const node = loader.node(modules);
+      assert.strictEqual(node.http, http);
+      assert.strictEqual(node.http2, http2);
+      const fullApi = loader.node(builtinModules);
+      assert.strictEqual(Object.keys(fullApi).length, builtinModules.length);
+    });
 
-  // describe('module', () => {
+    it('throws', () => {
+      assert.throws(() => loader.node(["some"]));
+      assert.throws(() => loader.node({}));
+    });
+  });
 
-  // });
+  describe.skip('module', () => {
 
-  // describe('dir', () => {
+  });
 
-  // });
+  describe.skip('dir', () => {
+
+  });
 });
