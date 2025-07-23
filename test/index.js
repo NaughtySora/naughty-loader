@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('node:assert');
-const { describe, it } = require('node:test');
+const { describe, it, after } = require('node:test');
 
 const loader = require('../main');
 const path = require('node:path');
@@ -10,6 +10,8 @@ const { builtinModules } = require('node:module');
 
 const findPackage = query => path.resolve(__dirname, 'packages', query);
 const getPackageJSONDependencies = (path) => Object.keys(require(path).dependencies);
+
+process.removeAllListeners('warning');
 
 const emulator = {
   nodeModules: {
@@ -130,14 +132,52 @@ describe('Loader', () => {
       assert.strictEqual(Object.keys(fullApi).length, builtinModules.length);
     });
 
+
     it('throws', () => {
       assert.throws(() => loader.node(["some"]));
       assert.throws(() => loader.node({}));
     });
   });
 
-  describe.skip('module', () => {
+  describe('module', () => {
+    // formats .cjs, .mjs, .ts, .json, .js
+    const folders = {
+      cjs: path.resolve(__dirname, "modules/cjs"),
+      mjs: path.resolve(__dirname, "modules/mjs"),
+      js: path.resolve(__dirname, "modules/js"),
+      ts: path.resolve(__dirname, "modules/ts"),
+    };
+    it('.cjs', () => {
+      const cjs = loader.module(folders.cjs, { context: { test: 1 } });
+    });
 
+    it('.mjs', () => {
+      const mjs = loader.module(folders.mjs, { context: { test: 1 } });
+    });
+
+    it('.js', () => {
+      // module.exports = () => {};
+      // module.exports = {a: 1, b: 2};
+      // module.exports = class {};
+      // const a = 'primitive'; module.exports = a;
+      // -> export default () => {};
+      // -> export default {a: 1, b: 2};
+      // -> export const a; export default b;
+      // -> export default class {}
+      // -> const a = 'primitive'; export default a;
+    });
+
+    it('.ts', () => {
+      // module.exports = () => {};
+      // module.exports = {a: 1, b: 2};
+      // module.exports = class {};
+      // const a = 'primitive'; module.exports = a;
+      // -> export default () => {};
+      // -> export default {a: 1, b: 2};
+      // -> export const a; export default b;
+      // -> export default class {}
+      // -> const a = 'primitive'; export default a;
+    });
   });
 
   describe.skip('dir', () => {

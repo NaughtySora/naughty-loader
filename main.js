@@ -1,12 +1,13 @@
 'use strict';
 
-const { readdirSync } = require('node:fs');
-const { extname, resolve, basename } = require('node:path');
+const { readdirSync, statSync, } = require('node:fs');
+const { extname, resolve, basename, } = require('node:path');
 const { freeze, keys } = Object;
 
 const ALLOWED_EXTS = ['.js', '.cjs', '.mjs', '.json', '.ts',];
 
 const isClass = entity => entity.toString().startsWith('class');
+const isPrimitive = entity => typeof entity !== "object" && typeof entity !== "function";
 
 const npm = (path, { omit = [], rename = {} } = {}) => {
   const json = require(path);
@@ -24,7 +25,7 @@ const npm = (path, { omit = [], rename = {} } = {}) => {
 };
 
 const node = modules => {
-  if(!Array.isArray(modules)){
+  if (!Array.isArray(modules)) {
     throw new Error("Modules list should be an array");
   }
   const api = [];
@@ -35,36 +36,48 @@ const node = modules => {
   return freeze(api);
 };
 
-const api = (module, context) => {
-  const api = {};
-  for (const key of keys(module)) {
-    const entity = module[key];
-    if (entity === 'function') api[key] = entity(context);
-    api[key] = entity;
-  }
-  return api;
-};
-
-const _default = (module, context) => {
+const _default = (module, { context, loadOnly = false }) => {
   if (typeof module === 'function') {
-    if (isClass(module)) return module;
+    if (loadOnly || isClass(module)) return module;
     return module(context);
   }
   return module;
 };
 
-const _module = (path, context = {}) => {
+const api = (module, options) => {
+  if (isPrimitive(module)) return module;
+  if (Object.getPrototypeOf(module) !== Object.prototype) {
+    return _default(module, options);
+  }
+  const api = {};
+  for (const key of keys(module)) {
+    const entity = module[key];
+    if (entity === 'function') {
+      api[key] = entity(context);
+    }
+    else api[key] = entity;
+  }
+  return freeze(api);
+};
+
+const _module = (path, { context, justLoad = [] } = {}) => {
   let count = 0;
   const result = {};
   for (const member of readdirSync(path, 'utf-8')) {
+    const memberPath = resolve(path, member);
+    if (statSync(memberPath).isDirectory()) continue;
     const ext = extname(member);
     if (!ALLOWED_EXTS.includes(ext)) continue;
-    const module = require(resolve(path, member));
-    result[basename(member, ext)] =
-      freeze(module?.default !== undefined ?
-        _default(module, context)
-        : api(module, context)
-      );
+    const module = require(memberPath);
+    const name = basename(member, ext);
+    const options = {
+      context,
+      loadOnly: justLoad.includes(name),
+    };
+    result[name] =
+      module?.default !== undefined ?
+        _default(module?.default, options)
+        : api(module, options);
     count++;
   }
   const index = result.index;

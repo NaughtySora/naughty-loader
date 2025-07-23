@@ -20,6 +20,9 @@
   "files": [
     "main.d.ts"
   ],
+  "scripts": {
+    "test": "node test/index.js"
+  },
   "homepage": "https://github.com/NaughtySora/naughty-loader#readme",
   "repository": {
     "type": "git",
