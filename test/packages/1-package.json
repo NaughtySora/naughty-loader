@@ -1,0 +1,13 @@
+
+{
+  "dependencies": {
+    "express": "^5.1.0",
+    "fastify": "^5.4.0",
+    "mongoose": "^8.16.4",
+    "naughty-pool": "^0.1.1",
+    "naughty-util": "^0.4.2",
+    "pg": "^8.16.3",
+    "prisma": "^6.12.0",
+    "ws": "^8.18.3"
+  }
+}
