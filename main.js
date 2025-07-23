@@ -11,7 +11,6 @@ const moduleProto = esm[Symbol.toStringTag];
 const isClass = entity => entity.toString().startsWith('class');
 const isPrimitive = entity => typeof entity !== "object" && typeof entity !== "function";
 
-
 const npm = (path, { omit = [], rename = {} } = {}) => {
   const json = require(path);
   const dependencies = json?.dependencies;
