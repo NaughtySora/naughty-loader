@@ -4,7 +4,7 @@ const { readdirSync, statSync, } = require('node:fs');
 const { extname, resolve, basename, } = require('node:path');
 const { freeze, keys } = Object;
 
-const ALLOWED_EXTS = ['.js', '.cjs', '.mjs', '.json', '.ts',];
+const ALLOWED_EXTS = ['.js', '.cjs', '.mjs', '.json'];
 
 const isClass = entity => entity.toString().startsWith('class');
 const isPrimitive = entity => typeof entity !== "object" && typeof entity !== "function";

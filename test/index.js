@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('node:assert');
-const { describe, it, after } = require('node:test');
+const { describe, it } = require('node:test');
 
 const loader = require('../main');
 const path = require('node:path');
@@ -140,12 +140,11 @@ describe('Loader', () => {
   });
 
   describe('module', () => {
-    // formats .cjs, .mjs, .ts, .json, .js
     const folders = {
       cjs: path.resolve(__dirname, "modules/cjs"),
       mjs: path.resolve(__dirname, "modules/mjs"),
       js: path.resolve(__dirname, "modules/js"),
-      ts: path.resolve(__dirname, "modules/ts"),
+      json: path.resolve(__dirname, "modules/json"),
     };
     it('.cjs', () => {
       const cjs = loader.module(folders.cjs, { context: { test: 1 } });
@@ -156,27 +155,11 @@ describe('Loader', () => {
     });
 
     it('.js', () => {
-      // module.exports = () => {};
-      // module.exports = {a: 1, b: 2};
-      // module.exports = class {};
-      // const a = 'primitive'; module.exports = a;
-      // -> export default () => {};
-      // -> export default {a: 1, b: 2};
-      // -> export const a; export default b;
-      // -> export default class {}
-      // -> const a = 'primitive'; export default a;
+      const js = loader.module(folders.js, { context: { test: 1 } });
     });
 
-    it('.ts', () => {
-      // module.exports = () => {};
-      // module.exports = {a: 1, b: 2};
-      // module.exports = class {};
-      // const a = 'primitive'; module.exports = a;
-      // -> export default () => {};
-      // -> export default {a: 1, b: 2};
-      // -> export const a; export default b;
-      // -> export default class {}
-      // -> const a = 'primitive'; export default a;
+    it('json', () => {
+      const json = loader.module(folders.json);
     });
   });
 

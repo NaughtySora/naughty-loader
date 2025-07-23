@@ -1,0 +1,11 @@
+{
+  "name": "string",
+  "data": {
+    "data": {
+      "array": [42, 43]
+    },
+    "smth": "a"
+  },
+  "field": true,
+  "array": ["true", false, 33.33]
+}
