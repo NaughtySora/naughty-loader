@@ -2,13 +2,15 @@
 
 const { readdirSync, statSync, } = require('node:fs');
 const { extname, resolve, basename, } = require('node:path');
-const { freeze, keys } = Object;
 const esm = require("./esm.mjs");
+const { freeze, keys } = Object;
 
 const ALLOWED_EXTS = ['.js', '.cjs', '.mjs', '.json'];
+const moduleProto = esm[Symbol.toStringTag];
+
 const isClass = entity => entity.toString().startsWith('class');
 const isPrimitive = entity => typeof entity !== "object" && typeof entity !== "function";
-const moduleProto = esm[Symbol.toStringTag];
+
 
 const npm = (path, { omit = [], rename = {} } = {}) => {
   const json = require(path);
