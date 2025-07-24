@@ -56,14 +56,13 @@ unwrapped and become only thing that loader will return*
   `options?: Record<string, LoadOptions>;`\
 `}`
 
-`type Npm = (path: string, options?: NpmOptions) => Readonly<Record<string, Readonly<any>>>;`
-`type Node = (modules: string[]) => Readonly<Record<string, Readonly<any>>>;`
-`type Module = (path: string, context?: LoadOptions) => Readonly<Record<string, any>>;`
-`type Dir = (path: string, context?: DirOptions) => Readonly<Record<string, Readonly<any>>>;`
-`type NoDI = () => any;`
-`type Root = (path: string, context?: LoadOptions) => any;`
-`type File = (path: string, context?: FileOptions) => any;`
-
+`type Npm = (path: string, options?: NpmOptions) => Readonly<Record<string, Readonly<any>>>;`\
+`type Node = (modules: string[]) => Readonly<Record<string, Readonly<any>>>;`\
+`type Module = (path: string, context?: LoadOptions) => Readonly<Record<string, any>>;`\
+`type Dir = (path: string, context?: DirOptions) => Readonly<Record<string, Readonly<any>>>;`\
+`type NoDI = () => any;`\
+`type Root = (path: string, context?: LoadOptions) => any;`\
+`type File = (path: string, context?: FileOptions) => any;`\
 
 ## Examples
 
