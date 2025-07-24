@@ -118,7 +118,6 @@ console.log(file);
             ├── di_module.mjs
             └── primitive.cjs
   `
-
   const options = {
     context: { 
       smth: {
@@ -129,7 +128,6 @@ console.log(file);
     },
     loadOnly: ["method"],
   };
-
   // path -> .../src/test
   const api = loader.module(path, options);
 
@@ -144,8 +142,7 @@ console.log(file);
     di_method(){
       return  context.smth.method();
     }
-  });
-  `
+  });`
   // output -> console.log("Injected")
   const di = api.di_module.di_method();
 
@@ -155,7 +152,52 @@ console.log(file);
   ```
 
 #### Dir
+  ```js
+  `file structure (tree)
+    └── src/
+        └── test/
+            ├── method.js
+            ├── di_module.mjs
+            └── primitive.cjs
+  `
+  const dirOptions = {
+    options: {
+      test: { // specific folder
+        context: { 
+          smth: {
+            method(){
+              console.log("Injected");
+            }
+          }
+        },
+        loadOnly: ["method"],
+      },
+      shared: { // shared among all folders 
+        context: { 
+          smth: {
+            method(){
+              console.log("Injected");
+            }
+          }
+        },
+        loadOnly: ["method"],
+      }
+    },
+  };
+  /* here we load test folder, it leads us 
+  to use loader.module to all sub folders in test folder */
+  
+  // path -> .../src
+  const api = loader.dir(path, dirOptions);
 
+  /* if file exports a function, loader will call it injecting context, 
+  use loadOnly: ['name'] to prevent it */
+  // file content -> export default () => console.log("method");
+  // output -> console.log("method")
+  const output = api.test.method();
+
+  // test folder api reminds the same as above 
+```
 #### Root
 
 #### File
