@@ -33,7 +33,7 @@ const node = modules => {
   }
   const api = {};
   for (const module of modules) {
-    const lib = freeze(require(`node:${module}`));
+    const lib = require(`node:${module}`);
     api[module] = lib?.default ?? lib;
   }
   return freeze(api);
