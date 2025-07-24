@@ -62,7 +62,7 @@ unwrapped and become only thing that loader will return*
 `type Dir = (path: string, context?: DirOptions) => Readonly<Record<string, Readonly<any>>>;`\
 `type NoDI = () => any;`\
 `type Root = (path: string, context?: LoadOptions) => any;`\
-`type File = (path: string, context?: FileOptions) => any;`\
+`type File = (path: string, context?: FileOptions) => any;`
 
 ## Examples
 
