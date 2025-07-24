@@ -200,4 +200,41 @@ console.log(file);
 ```
 #### Root
 
+```js
+  `file structure (tree)
+    └── src/
+        └── test/
+            ├── index.js
+            └── folder
+                └── file.json
+  `
+  const options = {
+    context: { test: 42 },
+    loadOnly: true,
+  };
+  /* it will ignore everting but index.(m|c)js file, first it will find*/
+  // file context module.exports = () => console.log('test');
+  // path -> .../src/test
+  const api = loader.root(path, options);
+  // since we have onlyLoad = true; it will result in console.log('test') output;
+  api(); 
+```
+
 #### File
+```js
+  `file structure (tree)
+    └── src/
+        └── file.js
+  `
+  const options = {
+    context: { test: 42 },
+  };
+  /* loads one file */
+  // file context export default () => console.log('test');
+  // path -> .../src/file.js
+  const api = loader.file(path, options);
+  // it exports a function and we don't use onlyLoad option here 
+  // loader will call function and inject { test: 42 } context like a fn parameter
+  console.log(api); // undefined
+  api(); // error
+```
