@@ -31,9 +31,9 @@ const node = modules => {
   if (!Array.isArray(modules)) {
     throw new Error("Modules list should be an array");
   }
-  const api = [];
+  const api = {};
   for (const module of modules) {
-    const lib = require(`node:${module}`);
+    const lib = freeze(require(`node:${module}`));
     api[module] = lib?.default ?? lib;
   }
   return freeze(api);
@@ -88,15 +88,15 @@ const _module = (path, { context, loadOnly = [] } = {}) => {
 };
 
 const dir = (path, { context = {}, shared } = {}) => {
-  const app = {};
+  const api = {};
   for (const member of readdirSync(path, 'utf-8')) {
     if (!statSync(resolve(path, member)).isDirectory()) continue;
-    app[member] = _module(
+    api[member] = _module(
       resolve(path, member),
-      context[member] ?? shared
+      context[member] ?? shared,
     );
   }
-  return freeze(app);
+  return freeze(api);
 };
 
 const root = (path, options = {}) => {
