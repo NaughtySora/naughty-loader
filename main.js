@@ -63,7 +63,7 @@ const api = (module, options) => {
   return freeze(api);
 };
 
-const _module = (path, { context, justLoad = [] } = {}) => {
+const _module = (path, { context, loadOnly = [] } = {}) => {
   const result = {};
   for (const member of readdirSync(path, 'utf-8')) {
     const memberPath = resolve(path, member);
@@ -74,7 +74,7 @@ const _module = (path, { context, justLoad = [] } = {}) => {
     const name = basename(member, ext);
     const options = {
       context,
-      loadOnly: justLoad.includes(name),
+      loadOnly: loadOnly.includes(name),
     };
     if (module?.__esModule && module?.default !== undefined) {
       result[name] = _default(module?.default, options);
@@ -87,21 +87,25 @@ const _module = (path, { context, justLoad = [] } = {}) => {
   return freeze(result);
 };
 
-const dir = (path, options = {}) => {
+const dir = (path, { context = {}, shared } = {}) => {
   const app = {};
   for (const member of readdirSync(path, 'utf-8')) {
-    app[member] = _module(resolve(path, member), options);
+    if (!statSync(resolve(path, member)).isDirectory()) continue;
+    app[member] = _module(
+      resolve(path, member),
+      context[member] ?? shared
+    );
   }
   return freeze(app);
 };
 
 const root = (path, options = {}) => {
-  const { justLoad = [] } = options;
+  const { loadOnly = [] } = options;
   const api = _module(path, options);
   const index = api.index;
   if (!isPrimitive(index) && index !== null) {
     if (typeof index === 'function') {
-      if (justLoad.includes('index') || isClass(index)) {
+      if (loadOnly.includes('index') || isClass(index)) {
         return freeze(index);
       }
       return freeze(index(context));
