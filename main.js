@@ -3,13 +3,14 @@
 const { readdirSync, statSync, } = require('node:fs');
 const { extname, resolve, basename, } = require('node:path');
 const esm = require("./esm.mjs");
-const { freeze, keys } = Object;
 
 const ALLOWED_EXTS = ['.js', '.cjs', '.mjs', '.json'];
 const moduleProto = esm[Symbol.toStringTag];
 
 const isClass = entity => entity.toString().startsWith('class');
-const isPrimitive = entity => typeof entity !== "object" && typeof entity !== "function";
+const isPrimitive = entity =>
+  typeof entity !== "object" && typeof entity !== "function";
+const { freeze, keys, getPrototypeOf, assign } = Object;
 
 const npm = (path, { omit = [], rename = {} } = {}) => {
   const json = require(path);
@@ -48,7 +49,7 @@ const _default = (module, { context, loadOnly = false }) => {
 
 const api = (module, options) => {
   if (isPrimitive(module)) return module;
-  if (Object.getPrototypeOf(module) !== Object.prototype) {
+  if (getPrototypeOf(module) !== Object.prototype) {
     return _default(module, options);
   }
   const api = {};
@@ -63,7 +64,6 @@ const api = (module, options) => {
 };
 
 const _module = (path, { context, justLoad = [] } = {}) => {
-  let count = 0;
   const result = {};
   for (const member of readdirSync(path, 'utf-8')) {
     const memberPath = resolve(path, member);
@@ -76,22 +76,13 @@ const _module = (path, { context, justLoad = [] } = {}) => {
       context,
       loadOnly: justLoad.includes(name),
     };
-    if (module?.default !== undefined) {
+    if (module?.__esModule && module?.default !== undefined) {
       result[name] = _default(module?.default, options);
     } else {
       const loaded = api(module, options);
-      const needCleaning = loaded[Symbol.toStringTag] === moduleProto;
-      result[name] = needCleaning ? Object.assign({}, loaded) : loaded;
+      const needCleaning = loaded?.[Symbol.toStringTag] === moduleProto;
+      result[name] = needCleaning ? assign({}, loaded) : loaded;
     }
-    count++;
-  }
-  const index = result.index;
-  if (count === 1 && index !== undefined) {
-    if (typeof index === 'function') {
-      if (justLoad.includes('index') || isClass(index)) return freeze(index);
-      return freeze(index(context));
-    }
-    return freeze({ ...index });
   }
   return freeze(result);
 };
@@ -104,9 +95,44 @@ const dir = (path, options = {}) => {
   return freeze(app);
 };
 
+const root = (path, options = {}) => {
+  const { justLoad = [] } = options;
+  const api = _module(path, options);
+  const index = api.index;
+  if (!isPrimitive(index) && index !== null) {
+    if (typeof index === 'function') {
+      if (justLoad.includes('index') || isClass(index)) {
+        return freeze(index);
+      }
+      return freeze(index(context));
+    }
+    return freeze({ ...index });
+  }
+  return index;
+};
+
+const file = (path, options = {}) => {
+  if (!ALLOWED_EXTS.includes(extname(path))) return;
+  const module = require(path);
+  if (module?.__esModule && module?.default !== undefined) {
+    return _default(module.default, options);
+  } else {
+    if (isPrimitive(module)) return module;
+    if (getPrototypeOf(module) !== Object.prototype) {
+      return _default(module, options);
+    }
+    return module;
+  }
+};
+
+const noDI = () => ({ includes() { return true } });
+
 module.exports = {
   node,
-  dir,
   npm,
   module: _module,
+  dir,
+  noDI,
+  root,
+  file,
 };
