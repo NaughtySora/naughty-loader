@@ -99,22 +99,6 @@ const dir = (path, { context = {}, shared } = {}) => {
   return freeze(api);
 };
 
-const root = (path, options = {}) => {
-  const { loadOnly = [] } = options;
-  const api = _module(path, options);
-  const index = api.index;
-  if (!isPrimitive(index) && index !== null) {
-    if (typeof index === 'function') {
-      if (loadOnly.includes('index') || isClass(index)) {
-        return freeze(index);
-      }
-      return freeze(index(context));
-    }
-    return freeze({ ...index });
-  }
-  return index;
-};
-
 const file = (path, options = {}) => {
   if (!ALLOWED_EXTS.includes(extname(path))) return;
   const module = require(path);
@@ -127,6 +111,20 @@ const file = (path, options = {}) => {
     }
     return module;
   }
+};
+
+const root = (path, options = {}) => {
+  const dir = readdirSync(path, 'utf-8');
+  const filepath = resolve(
+    path,
+    dir.find(file => file.startsWith("index"))
+  );
+  const index = file(filepath, options);
+  if (isPrimitive(index)
+    || index === null
+    || typeof index === 'function'
+  ) return freeze(index);
+  return freeze({ ...index });
 };
 
 const noDI = () => ({ includes() { return true } });
