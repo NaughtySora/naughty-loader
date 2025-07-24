@@ -230,7 +230,7 @@ console.log(file);
 
 #### File
 ```js
-  `file structure (tree)
+  `
     └── src/
         └── file.js
   `
