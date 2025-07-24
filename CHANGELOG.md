@@ -13,3 +13,5 @@
 - noDI, root, file functions
 - tests for noDI, root, file
 - readme
+- fixing npm files structure
+- updating root function with better error handling and index checking

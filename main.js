@@ -115,10 +115,14 @@ const file = (path, options = {}) => {
 
 const root = (path, options = {}) => {
   const dir = readdirSync(path, 'utf-8');
-  const filepath = resolve(
-    path,
-    dir.find(file => file.startsWith("index"))
-  );
+  const indexPath = dir.find(file => {
+    return file.startsWith("index") &&
+      !statSync(resolve(path, file)).isDirectory();
+  });
+  if (indexPath === undefined) {
+    throw new Error("Can't find index file");
+  }
+  const filepath = resolve(path, indexPath);
   const index = file(filepath, options);
   if (isPrimitive(index)
     || index === null
