@@ -100,7 +100,7 @@ const options = { // optional
 };
 const npm = loader.npm(packageJson, options);
 const config = { pg: {},};
-const pool = npm.postgres.Pool(config.pg);
+const pool = new npm.postgres.Pool(config.pg);
 await pool.connect();
 
 const readFile = npm.util.async.promisify(fs.readFile);
