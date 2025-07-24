@@ -110,7 +110,7 @@ console.log(file);
 
 #### Module
   ```js
-  `file structure (tree)
+  `
     └── src/
         └── test/
             ├── method.js
@@ -152,7 +152,7 @@ console.log(file);
 
 #### Dir
   ```js
-  `file structure (tree)
+  `
     └── src/
         └── test/
             ├── method.js
@@ -200,7 +200,7 @@ console.log(file);
 #### Root
 
 ```js
-  `file structure (tree)
+  `
     └── src/
         └── test/
             ├── index.js
