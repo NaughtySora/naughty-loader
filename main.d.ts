@@ -25,7 +25,7 @@ type Node = (modules: string[]) => Readonly<Record<string, Readonly<any>>>;
 type Module = (path: string, context?: LoadOptions) => Readonly<Record<string, any>>;
 type Dir = (path: string, context?: DirOptions) => Readonly<Record<string, Readonly<any>>>;
 type NoDI = () => any;
-type Root = (path: string, context?: LoadOptions) => any;
+type Root = (path: string, context?: FileOptions) => any;
 type File = (path: string, context?: FileOptions) => any;
 
 export const npm: Npm;
