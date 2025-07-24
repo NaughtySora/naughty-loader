@@ -1,4 +1,9 @@
-# Nodejs Loader
+# Naughty Loader
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/NaughtySora/naughty-loader/blob/master/LICENSE)
+[![snyk](https://snyk.io/test/github/NaughtySora/naughty-loader/badge.svg)](https://snyk.io/test/github/NaughtySora/naughty-loader)
+[![npm version](https://badge.fury.io/js/naughty-loader.svg)](https://badge.fury.io/js/naughty-loader)
+[![NPM Downloads](https://img.shields.io/npm/dm/naughty-loader)](https://www.npmjs.com/package/naughty-loader)
+[![NPM Downloads](https://img.shields.io/npm/dt/naughty-loader)](https://www.npmjs.com/package/naughty-loader)
 
 ## Formats 
 - js
@@ -241,3 +246,5 @@ console.log(file);
   console.log(api); // undefined
   api(); // error
 ```
+
+## Part of naughty stack

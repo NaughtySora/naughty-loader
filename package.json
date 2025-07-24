@@ -1,6 +1,6 @@
 {
   "name": "naughty-loader",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "NaughtySora <naughtysora@proton.me>",
   "license": "MIT",
   "description": "Nodejs module loader, ID containerization",
@@ -18,7 +18,8 @@
     "module"
   ],
   "files": [
-    "main.d.ts"
+    "main.d.ts",
+    "esm.mjs"
   ],
   "scripts": {
     "test": "node test/index.js"
