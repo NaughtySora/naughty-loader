@@ -48,7 +48,60 @@ module.exports = {
   },
 };
 
-// test for no options
+const folders = {
+  cjs: path.resolve(__dirname, 'modules/cjs'),
+  mjs: path.resolve(__dirname, 'modules/mjs'),
+  js: path.resolve(__dirname, 'modules/js'),
+  json: path.resolve(__dirname, 'modules/json'),
+  jsonEmpty: path.resolve(__dirname, 'modules/json/empty'),
+};
+
+const expected = {
+  cjs: {
+    api: { a: 1, b: 2 },
+    array: [1, 2, 3],
+    bool: true,
+    class: class { },
+    empty: {},
+    function: x => x,
+    di_function: { test: 1 },
+    map: new Map(),
+    named: {
+      test: 'a',
+      test2: {},
+    },
+    'obj-class': new (class A {
+      constructor(name) {
+        this.name = name;
+        this.length = 0;
+      }
+
+      method1() {
+
+      }
+
+      #hidden() {
+
+      }
+
+      _internal() {
+
+      }
+    })(),
+    primitive: 'primitive',
+    symbol: Symbol(),
+    'not-direct-obj': new (class B extends EventEmitter {
+      constructor() {
+        super();
+      }
+
+      test() {
+        throw new Error('B - test');
+      }
+    })(),
+    number: 0xFFFF,
+  },
+};
 
 describe('Loader', () => {
   describe('npm', () => {
@@ -142,78 +195,46 @@ describe('Loader', () => {
   });
 
   describe('module', () => {
-    const folders = {
-      cjs: path.resolve(__dirname, 'modules/cjs'),
-      mjs: path.resolve(__dirname, 'modules/mjs'),
-      js: path.resolve(__dirname, 'modules/js'),
-      json: path.resolve(__dirname, 'modules/json'),
-      jsonEmpty: path.resolve(__dirname, 'modules/json/empty'),
-    };
     const loaded = {
       cjs: null,
       mjs: null,
       js: null,
       json: null,
     };
-    const expected = {
-      cjs: {
-        api: { a: 1, b: 2 },
-        array: [1, 2, 3],
-        bool: true,
-        class: class { },
-        empty: {},
-        function: x => x,
-        di_function: { test: 1 },
-        map: new Map(),
-        named: {
-          test: 'a',
-          test2: {},
-        },
-        'obj-class': new (class A {
-          constructor(name) {
-            this.name = name;
-            this.length = 0;
-          }
-
-          method1() {
-
-          }
-
-          #hidden() {
-
-          }
-
-          _internal() {
-
-          }
-        })(),
-        primitive: 'primitive',
-        symbol: Symbol(),
-        'not-direct-obj': new (class B extends EventEmitter {
-          constructor() {
-            super();
-          }
-
-          test() {
-            throw new Error('B - test');
-          }
-        })(),
-        number: 0xFFFF,
-      },
-    };
 
     after(() => {
-      const api = loader.dir(path.resolve(__dirname, 'modules'), { context: { test: 1 } });
+      const api = loader.dir(path.resolve(__dirname, 'modules'), { shared: { context: { test: 1 } } });
       assert.deepStrictEqual(loaded.cjs, api.cjs);
       assert.deepStrictEqual(loaded.mjs, api.mjs);
       assert.deepStrictEqual(loaded.js, api.js);
       assert.deepStrictEqual(loaded.json, api.json);
+      const api2 = loader.dir(path.resolve(__dirname, 'modules'), {
+        context: {
+          cjs: { context: { test: 1 } },
+          mjs: { context: { test: 1 } },
+          js: { context: { test: 1 } },
+        },
+      });
+      assert.deepStrictEqual(loaded.cjs, api2.cjs);
+      assert.deepStrictEqual(loaded.mjs, api2.mjs);
+      assert.deepStrictEqual(loaded.js, api2.js);
+      assert.deepStrictEqual(loaded.json, api2.json);
+      assert.throws(() => {
+        const api = loader.dir(path.resolve(__dirname, 'modules'), {
+          context: {
+            cjs: { context: { test: 1 } },
+            mjs: { context: { test: 1 } },
+            // js: { context: { test: 1 } },
+          },
+        });
+        assert.deepStrictEqual(loaded.js, api.js);
+      });
     });
 
     it('.cjs', () => {
       assert.doesNotThrow(() => loader.module(folders.cjs));
       const cjs = loaded.cjs = loader.module(folders.cjs, { context: { test: 1 } });
-      const no_context = loader.module(folders.cjs, { justLoad: ['function'] });
+      const no_context = loader.module(folders.cjs, { loadOnly: ['function'] });
       assert.deepStrictEqual(cjs.api, expected.cjs.api);
       assert.deepStrictEqual(cjs.array, expected.cjs.array);
       assert.deepStrictEqual(cjs.bool, expected.cjs.bool);
@@ -255,7 +276,7 @@ describe('Loader', () => {
     it('.mjs', () => {
       assert.doesNotThrow(() => loader.module(folders.mjs));
       const mjs = loaded.mjs = loader.module(folders.mjs, { context: { test: 1 } });
-      const no_context = loader.module(folders.mjs, { justLoad: ['function'] });
+      const no_context = loader.module(folders.mjs, { loadOnly: ['function'] });
       assert.deepStrictEqual(mjs.api, expected.cjs.api);
       assert.deepStrictEqual(mjs.array, expected.cjs.array);
       assert.deepStrictEqual(mjs.bool, expected.cjs.bool);
@@ -297,7 +318,7 @@ describe('Loader', () => {
     it('.js', () => {
       assert.doesNotThrow(() => loader.module(folders.js));
       const js = loaded.js = loader.module(folders.js, { context: { test: 1 } });
-      const no_context = loader.module(folders.js, { justLoad: ['function', 'function-mjs'] });
+      const no_context = loader.module(folders.js, { loadOnly: ['function', 'function-mjs'] });
 
       assert.deepStrictEqual(js.api, expected.cjs.api);
       assert.deepStrictEqual(js['api-mjs'], expected.cjs.api);
@@ -394,8 +415,8 @@ describe('Loader', () => {
       const mjsFn = loader.root(path.resolve(__dirname, 'modules/index/mjs-fn'), { context: { test: 1 } });
       const jsC = loader.root(path.resolve(__dirname, 'modules/index/js-cjs'), { context: { test: 1 } });
       const jsM = loader.root(path.resolve(__dirname, 'modules/index/js-mjs'), { context: { test: 1 } });
-      const no_context_mjs = loader.root(path.resolve(__dirname, 'modules/index/mjs-fn'), { justLoad: ['index'] });
-      const no_context_cjs = loader.root(path.resolve(__dirname, 'modules/index/cjs'), { justLoad: ['index'] });
+      const no_context_mjs = loader.root(path.resolve(__dirname, 'modules/index/mjs-fn'), { loadOnly: ['index'] });
+      const no_context_cjs = loader.root(path.resolve(__dirname, 'modules/index/cjs'), { loadOnly: ['index'] });
       assert.deepStrictEqual(cjs, { test: 1 });
       assert.deepStrictEqual(mjsFn, { test: 1 });
       assert.deepStrictEqual(jsC, { aaa: 'bbb', name: '`', value: true });
@@ -410,13 +431,13 @@ describe('Loader', () => {
     it('noDI', () => {
       const noDI = loader.module(path.resolve(__dirname, 'modules/noDI'), {
         context: { test: 1 },
-        justLoad: loader.noDI(),
+        loadOnly: loader.noDI(),
       });
       const DI = loader.module(path.resolve(__dirname, 'modules/noDI'), {
         context: { test: 1 },
       });
       const noDIRoot = loader.root(path.resolve(__dirname, 'modules/index/mjs-fn'),
-        { justLoad: loader.noDI() });
+        { loadOnly: loader.noDI() });
       const DIRoot = loader.root(path.resolve(__dirname, 'modules/index/cjs'));
 
       assert.ok(typeof noDI.module1 === 'function');
@@ -426,8 +447,10 @@ describe('Loader', () => {
       assert.deepStrictEqual(DI.module2, { test: 1 });
       assert.deepStrictEqual(DIRoot, undefined);
     });
+  });
 
-    it('file', () => {
+  describe('file', () => {
+    it('context', () => {
       assert.doesNotThrow(() => loader.file(path.resolve(folders.js, 'api.js')));
       assert.doesNotThrow(() => loader.file(path.resolve(folders.js, 'api-mjs.js')));
       const js = {
@@ -457,11 +480,6 @@ describe('Loader', () => {
         'primitive-mjs': loader.file(path.resolve(folders.js, 'primitive-mjs.js')),
         symbol: loader.file(path.resolve(folders.js, 'symbol.js')),
         'symbol-mjs': loader.file(path.resolve(folders.js, 'symbol-mjs.js')),
-      };
-
-      const no_context = {
-        function: loader.file(path.resolve(folders.js, 'function.js'), { loadOnly: true, context: 1 }),
-        'function-mjs': loader.file(path.resolve(folders.js, 'function-mjs.js'), { loadOnly: true, }),
       };
 
       assert.deepStrictEqual(js.api, expected.cjs.api);
@@ -531,10 +549,20 @@ describe('Loader', () => {
 
       // reference different, the function name initially is id, but mapped to function
       // so only here we compare just function body;
-      assert.ok(no_context.function.toString() === expected.cjs.function.toString());
-      assert.ok(no_context['function-mjs'].toString() === expected.cjs.function.toString());
       assert.ok(js.class.toString() === expected.cjs.class.toString());
       assert.ok(js['class-mjs'].toString() === expected.cjs.class.toString());
+    });
+
+    it('no context', () => {
+      const no_context = {
+        function: loader.file(path.resolve(folders.js, 'function.js'), { loadOnly: true, context: 1 }),
+        'function-mjs': loader.file(path.resolve(folders.js, 'function-mjs.js'), { loadOnly: true, }),
+      };
+
+      // reference different, the function name initially is id, but mapped to function
+      // so only here we compare just function body;
+      assert.ok(no_context.function.toString() === expected.cjs.function.toString());
+      assert.ok(no_context['function-mjs'].toString() === expected.cjs.function.toString());
     });
   });
 });

@@ -1,7 +1,12 @@
 {
   "name": "naughty-loader",
   "version": "0.1.0",
+  "author": "NaughtySora <naughtysora@proton.me>",
+  "license": "MIT",
   "description": "Nodejs module loader, ID containerization",
+  "main": "main.js",
+  "types": "main.d.ts",
+  "readmeFilename": "README.md",
   "keywords": [
     "nodejs",
     "DI",
@@ -12,11 +17,6 @@
     "directory loader",
     "module"
   ],
-  "license": "MIT",
-  "author": "NaughtySora <naughtysora@proton.me>",
-  "main": "main.js",
-  "types": "main.d.ts",
-  "readmeFilename": "README.md",
   "files": [
     "main.d.ts"
   ],

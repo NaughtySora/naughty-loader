@@ -7,7 +7,7 @@ type ArrayLike = { length: number, includes(item: any): boolean };
 
 interface LoadOptions {
   context?: any;
-  justLoad?: ArrayLike;
+  loadOnly?: ArrayLike;
 }
 
 interface FileOptions {
@@ -15,10 +15,15 @@ interface FileOptions {
   loadOnly?: boolean;
 }
 
+interface DirOptions {
+  shared?: LoadOptions;
+  options?: Record<string, LoadOptions>;
+}
+
 type Npm = (path: string, options?: NpmOptions) => Readonly<Record<string, Readonly<any>>>;
 type Node = (modules: string[]) => Readonly<Record<string, Readonly<any>>>;
 type Module = (path: string, context?: LoadOptions) => Readonly<Record<string, Readonly<any>>> | Readonly<Function>;
-type Dir = (path: string, context?: LoadOptions) => Readonly<Record<string, Readonly<any>>>;
+type Dir = (path: string, context?: DirOptions) => Readonly<Record<string, Readonly<any>>>;
 type NoDI = () => any;
 type Root = (path: string, context?: LoadOptions) => any;
 type File = (path: string, context?: FileOptions) => any;
