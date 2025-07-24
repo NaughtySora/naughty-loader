@@ -4,7 +4,7 @@ const { readdirSync, statSync, } = require('node:fs');
 const { extname, resolve, basename, } = require('node:path');
 const esm = require("./esm.mjs");
 
-const ALLOWED_EXTS = ['.js', '.cjs', '.mjs', '.json'];
+const ALLOWED_EXTS = ['.js', '.cjs', '.mjs', '.json', '.ts'];
 const moduleProto = esm[Symbol.toStringTag];
 
 const isClass = entity => entity.toString().startsWith('class');
