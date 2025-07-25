@@ -5,6 +5,8 @@
 [![NPM Downloads](https://img.shields.io/npm/dm/naughty-loader)](https://www.npmjs.com/package/naughty-loader)
 [![NPM Downloads](https://img.shields.io/npm/dt/naughty-loader)](https://www.npmjs.com/package/naughty-loader)
 
+## Loader doesn't support top level awaits due to using require as module loader
+
 ## Formats 
 - js
 - mjs
@@ -14,8 +16,6 @@
 - ts - use with caution \
 will cause errors when trying to load .ts file in js environment \
 but works with some npm libraries like nodemon.
-
-## Loader doesn't support top level awaits due to using require as module loader
 
 ## API
 
