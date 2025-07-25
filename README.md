@@ -15,6 +15,8 @@
 will cause errors when trying to load .ts file in js environment \
 but works with some npm libraries like nodemon.
 
+## Loader doesn't support top level awaits due to using require as module loader
+
 ## API
 
 #### Npm packages
