@@ -11,9 +11,9 @@
 - cjs
 - json
 
-- ts - use with caution
-will cause errors when trying to load .ts file in js environment 
-but works with some ts libraries like nodemon.
+- ts - use with caution \
+will cause errors when trying to load .ts file in js environment \
+but works with some npm libraries like nodemon.
 
 ## API
 
