@@ -1,2 +1,2 @@
 export const test = 42;
-export const error = new Error();
+export const error = new Error('error_message');

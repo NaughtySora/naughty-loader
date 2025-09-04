@@ -1,6 +1,6 @@
 {
   "name": "naughty-loader",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "author": "NaughtySora <naughtysora@proton.me>",
   "license": "MIT",
   "description": "Nodejs module loader, ID containerization",

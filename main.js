@@ -33,7 +33,7 @@ const node = modules => {
   }
   const api = {};
   for (const module of modules) {
-    const lib = require(`node:${module}`);
+    const lib = require(`node:${module.replace(/^node:/, "")}`);
     api[module] = lib?.default ?? lib;
   }
   return freeze(api);
@@ -124,11 +124,8 @@ const root = (path, options = {}) => {
   }
   const filepath = resolve(path, indexPath);
   const index = file(filepath, options);
-  if (isPrimitive(index)
-    || index === null
-    || typeof index === 'function'
-  ) return freeze(index);
-  return freeze({ ...index });
+  const needCleaning = index?.[Symbol.toStringTag] === moduleProto;
+  return freeze(needCleaning ? assign({}, index) : index);
 };
 
 const noDI = () => ({ includes() { return true } });
