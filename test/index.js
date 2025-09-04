@@ -187,7 +187,6 @@ describe('Loader', () => {
       assert.strictEqual(Object.keys(fullApi).length, builtinModules.length);
     });
 
-
     it('throws', () => {
       assert.throws(() => loader.node(['some']));
       assert.throws(() => loader.node({}));
@@ -417,10 +416,12 @@ describe('Loader', () => {
       const jsM = loader.root(path.resolve(__dirname, 'modules/index/js-mjs'), { context: { test: 1 } });
       const no_context_mjs = loader.root(path.resolve(__dirname, 'modules/index/mjs-fn'), { loadOnly: ['index'] });
       const no_context_cjs = loader.root(path.resolve(__dirname, 'modules/index/cjs'), { loadOnly: ['index'] });
+      const di_array = loader.root(path.resolve(__dirname, 'modules/index/di-array'));
+      assert.deepStrictEqual(di_array, [1, 2, 3]);
       assert.deepStrictEqual(cjs, { test: 1 });
       assert.deepStrictEqual(mjsFn, { test: 1 });
       assert.deepStrictEqual(jsC, { aaa: 'bbb', name: '`', value: true });
-      assert.deepStrictEqual(jsM, { error: new Error(), test: 42 });
+      assert.deepStrictEqual(jsM, { error: new Error('error_message'), test: 42 });
       assert.ok(mjs.toString() === expected.cjs.class.toString());
       assert.ok(typeof no_context_mjs === 'function');
       assert.ok(typeof no_context_cjs === 'function');

@@ -15,3 +15,10 @@
 - readme
 - fixing npm files structure
 - updating root function with better error handling and index checking
+
+## [0.1.4] - 2025-09-04
+
+- bug fixed with wrong module null proto when root module loaded
+- bug fixed when di container returns array it becomes an 
+associated massive via destructing massive in object
+- bus fixed with node >=24 when new modules have node: prefix by default
